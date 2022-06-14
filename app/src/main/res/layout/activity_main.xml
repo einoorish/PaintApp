@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <com.example.simplepaint.CanvasView
+        android:id="@+id/canvas_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:id="@+id/save_btn"
+        android:scaleType="fitCenter"
+        android:src="@drawable/save"
+        android:layout_margin="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <ImageButton
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:id="@+id/undo_btn"
+        android:scaleType="fitCenter"
+        android:src="@drawable/back"
+        android:layout_margin="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <ImageButton
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:id="@+id/forward_btn"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_baseline_arrow_forward_24"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toEndOf="@+id/undo_btn"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+
+    <ImageButton
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:id="@+id/brush_btn"
+        android:scaleType="fitCenter"
+        android:src="@drawable/brush"
+        android:layout_marginBottom="6dp"
+        android:layout_marginStart="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+
+    <ImageButton
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:id="@+id/bucket_btn"
+        android:src="@drawable/paint_bucket"
+        app:tint="@color/white"
+        android:scaleType="fitCenter"
+        android:layout_marginBottom="6dp"
+        android:layout_marginStart="8dp"
+        app:layout_constraintStart_toEndOf="@id/brush_btn"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <ImageButton
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:id="@+id/eraser_btn"
+        android:src="@drawable/eraser"
+        app:tint="@color/white"
+        android:scaleType="fitCenter"
+        android:layout_marginBottom="6dp"
+        android:layout_marginStart="8dp"
+        app:layout_constraintStart_toEndOf="@id/bucket_btn"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/color_picker"
+        android:src="@drawable/ic_baseline_circle_24"
+        android:background="@null"
+        android:layout_marginBottom="12dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
