@@ -5,7 +5,11 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 
 import androidx.annotation.Nullable;
@@ -13,39 +17,94 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 
 public class CanvasView extends View {
-    private static final int DEFAULT_BG_COLOUR = Color.TRANSPARENT;
 
+    private Canvas canvas;
+    private Bitmap canvasBitmap;
+
+    private Paint paint;
+    private Path currentPath;
     private final ArrayList<DrawPath> availableUndoMoves;
     private final ArrayList<DrawPath> availableRedoMoves;
 
-    private Canvas canvas;
-    private Bitmap bitmap;
-    private final Paint paint;
-
-    private int currentColour;
+    private int currentColor;
 
     public CanvasView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
 
-        paint = new Paint();
         availableUndoMoves = new ArrayList<>();
         availableRedoMoves = new ArrayList<>();
+
+        currentPath = new Path();
+        paint = new Paint();
+        paint.setStrokeWidth(50);
     }
 
     public void init(int width, int height) {
-        paint.setColor(currentColour);
+        initDrawingPaint();
 
-        bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        canvas = new Canvas(bitmap);
+        canvasBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        canvas = new Canvas(canvasBitmap);
     }
 
-    public void setColour(int colour) {
-        currentColour = colour;
+    private void initDrawingPaint() {
+        paint.setColor(Color.BLACK);
+        paint.setAntiAlias(true);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeJoin(Paint.Join.ROUND);
+        paint.setStrokeCap(Paint.Cap.ROUND);
     }
 
-    public void makeUndoMove() {
-        if (availableUndoMoves.isEmpty())
-            return;
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        canvas.drawBitmap(canvasBitmap, 0, 0, null);
+        canvas.drawPath(currentPath, paint);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        float touchX = event.getX();
+        float touchY = event.getY();
+
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                currentPath.moveTo(touchX, touchY);
+                break;
+            case MotionEvent.ACTION_MOVE:
+                addPath(touchX, touchY);
+                break;
+            case MotionEvent.ACTION_UP:
+                canvas.drawPath(currentPath, paint);
+                currentPath.reset();
+                break;
+            default:
+                return false;
+        }
+
+        invalidate();
+        return true;
+    }
+
+    private void addPath(float x, float y) {
+        currentPath.lineTo(x, y);
+
+        DrawPath drawPath = new DrawPath(paint.getColor(), 50, currentPath);
+        availableUndoMoves.add(drawPath);
+    }
+
+    public void setColor(int color) {
+        currentColor = color;
+        paint.setColor(color);
+    }
+
+    public void useEraser() {
+        paint.setMaskFilter(null);
+        paint.setColor(Color.TRANSPARENT);
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+    }
+
+    public void useBrush() {
+        paint.setColor(currentColor);
+        paint.setXfermode(null);
     }
 
     public void makeRedoMove() {
@@ -53,32 +112,8 @@ public class CanvasView extends View {
             return;
     }
 
-    public void selectBrush() {
+    public void makeUndoMove() {
+        if (availableUndoMoves.isEmpty())
+            return;
     }
-
-
-    public void selectEraser() {
-    }
-
-    public void selectBucket() {
-    }
-
-    @Override
-    protected void onDraw(Canvas canvas) {
-        canvas.save();
-        if (availableUndoMoves.size() != 0) {
-            // get the most recently drawn path
-            DrawPath lastPath = availableUndoMoves.get(availableUndoMoves.size() - 1);
-            // set the paint object attributes
-            paint.setColor(lastPath.getColour());
-            paint.setStrokeWidth(lastPath.getWidth());
-            paint.setMaskFilter(null);
-            // draw the path
-            this.canvas.drawPath(lastPath.getPath(), paint);
-        }
-        // draw the bitmap to the canvas
-        canvas.drawBitmap(bitmap, 0, 0, paint);
-        canvas.restore();
-    }
-
 }

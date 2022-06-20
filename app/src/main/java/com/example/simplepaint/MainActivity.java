@@ -2,10 +2,9 @@ package com.example.simplepaint;
 
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -20,6 +19,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageButton redoButton;
     private ImageButton saveButton;
     private ImageButton brushButton;
+    private ImageButton eraserButton;
     private ImageButton bucketButton;
 
     @Override
@@ -31,10 +31,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
         canvasView.init(displayMetrics.widthPixels, displayMetrics.heightPixels);
 
-        canvasView.setOnTouchListener((v, event) -> {
-            //TODO: implement
-            return false;
-        });
 
         undoButton = findViewById(R.id.undo_btn);
         undoButton.setOnClickListener(this);
@@ -48,6 +44,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         brushButton = findViewById(R.id.brush_btn);
         brushButton.setOnClickListener(this);
 
+        eraserButton = findViewById(R.id.eraser_btn);
+        eraserButton.setOnClickListener(this);
+
         bucketButton = findViewById(R.id.bucket_btn);
         bucketButton.setOnClickListener(this);
 
@@ -60,32 +59,40 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         DrawableCompat.setTint(DrawableCompat.wrap(colorButton.getDrawable()), defaultColorId);
     }
 
+    private boolean usingOneFinger(MotionEvent event) {
+        return event.getPointerCount() == 1;
+    }
+
+    private boolean usingTwoFingers(MotionEvent event) {
+        return event.getPointerCount() == 2;
+    }
+
 
     @Override
     public void onClick(View v) {
         int viewID = v.getId();
 
         switch (viewID) {
-            case R.id.undo_btn:
-                canvasView.makeUndoMove();
-                break;
-            case R.id.forward_btn:
-                canvasView.makeRedoMove();
-                break;
-            case R.id.brush_btn:
-                canvasView.selectBrush();
-                break;
-//            case R.id.eraser_btn:
-//                canvasView.useEraser();
+//            case R.id.undo_btn:
+//                canvasView.makeUndoMove();
 //                break;
-            case R.id.bucket_btn:
-//                canvasView.useBucket();
+//            case R.id.forward_btn:
+//                canvasView.makeRedoMove();
+//                break;
+            case R.id.brush_btn:
+                canvasView.useBrush();
                 break;
+            case R.id.eraser_btn:
+                canvasView.useEraser();
+                break;
+//            case R.id.bucket_btn:
+////                canvasView.useBucket();
+//                break;
             case R.id.color_picker:
                 ColorPickerDialog dialog = new ColorPickerDialog(MainActivity.this);
-                dialog.setOnDialogOptionSelectedListener(colour -> {
-                    canvasView.setColour(colour);
-                    DrawableCompat.setTint(DrawableCompat.wrap(colorButton.getDrawable()), colour);
+                dialog.setOnDialogOptionSelectedListener(color -> {
+                    canvasView.setColor(color);
+                    DrawableCompat.setTint(DrawableCompat.wrap(colorButton.getDrawable()), color);
                 });
                 dialog.show();
                 break;
