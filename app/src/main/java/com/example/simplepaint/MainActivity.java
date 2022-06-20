@@ -28,9 +28,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         canvasView = findViewById(R.id.canvas_view);
-        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
-        canvasView.init(displayMetrics.widthPixels, displayMetrics.heightPixels);
-
 
         undoButton = findViewById(R.id.undo_btn);
         undoButton.setOnClickListener(this);
@@ -52,9 +49,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         colorButton = findViewById(R.id.color_picker);
         colorButton.setOnClickListener(this);
-        
-       // makeAllButtonsTheSameSize();
-        
+
         final int defaultColorId = ContextCompat.getColor(colorButton.getContext(), R.color.black);
         DrawableCompat.setTint(DrawableCompat.wrap(colorButton.getDrawable()), defaultColorId);
     }
@@ -73,12 +68,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         int viewID = v.getId();
 
         switch (viewID) {
-//            case R.id.undo_btn:
-//                canvasView.makeUndoMove();
-//                break;
-//            case R.id.forward_btn:
-//                canvasView.makeRedoMove();
-//                break;
+            case R.id.undo_btn:
+                canvasView.makeUndoMove();
+                break;
+            case R.id.forward_btn:
+                canvasView.makeRedoMove();
+                break;
             case R.id.brush_btn:
                 canvasView.useBrush();
                 break;

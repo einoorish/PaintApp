@@ -1,11 +1,9 @@
 package com.example.simplepaint;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.util.AttributeSet;
@@ -19,12 +17,11 @@ import java.util.ArrayList;
 public class CanvasView extends View {
 
     private Canvas canvas;
-    private Bitmap canvasBitmap;
 
     private Paint paint;
-    private Path currentPath;
-    private final ArrayList<DrawPath> availableUndoMoves;
-    private final ArrayList<DrawPath> availableRedoMoves;
+    private PaintPath currentPath;
+    private final ArrayList<PaintPath> availableUndoMoves;
+    private final ArrayList<PaintPath> availableRedoMoves;
 
     private int currentColor;
 
@@ -34,30 +31,17 @@ public class CanvasView extends View {
         availableUndoMoves = new ArrayList<>();
         availableRedoMoves = new ArrayList<>();
 
-        currentPath = new Path();
+        currentPath = new PaintPath();
         paint = new Paint();
-        paint.setStrokeWidth(50);
+
+        canvas = new Canvas();
     }
 
-    public void init(int width, int height) {
-        initDrawingPaint();
-
-        canvasBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        canvas = new Canvas(canvasBitmap);
-    }
-
-    private void initDrawingPaint() {
-        paint.setColor(Color.BLACK);
-        paint.setAntiAlias(true);
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeJoin(Paint.Join.ROUND);
-        paint.setStrokeCap(Paint.Cap.ROUND);
-    }
 
     protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-        canvas.drawBitmap(canvasBitmap, 0, 0, null);
-        canvas.drawPath(currentPath, paint);
+        for(PaintPath path: availableUndoMoves){
+            canvas.drawPath(path, path.getPaint());
+        }
     }
 
     @Override
@@ -67,14 +51,18 @@ public class CanvasView extends View {
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
+                currentPath = new PaintPath();
+                currentPath.reset();
                 currentPath.moveTo(touchX, touchY);
+                currentPath.setPaintColor(paint.getColor());
+                availableUndoMoves.add(currentPath);
                 break;
+
             case MotionEvent.ACTION_MOVE:
-                addPath(touchX, touchY);
+                currentPath.lineTo(touchX, touchY);
                 break;
             case MotionEvent.ACTION_UP:
-                canvas.drawPath(currentPath, paint);
-                currentPath.reset();
+                canvas.drawPath(currentPath, currentPath.getPaint());
                 break;
             default:
                 return false;
@@ -82,13 +70,6 @@ public class CanvasView extends View {
 
         invalidate();
         return true;
-    }
-
-    private void addPath(float x, float y) {
-        currentPath.lineTo(x, y);
-
-        DrawPath drawPath = new DrawPath(paint.getColor(), 50, currentPath);
-        availableUndoMoves.add(drawPath);
     }
 
     public void setColor(int color) {
@@ -108,12 +89,18 @@ public class CanvasView extends View {
     }
 
     public void makeRedoMove() {
-        if (availableRedoMoves.isEmpty())
-            return;
+        if (!availableRedoMoves.isEmpty()) {
+            PaintPath move = availableRedoMoves.remove(availableRedoMoves.size() - 1);
+            availableUndoMoves.add(move);
+            invalidate();
+        }
     }
 
     public void makeUndoMove() {
-        if (availableUndoMoves.isEmpty())
-            return;
+        if (!availableUndoMoves.isEmpty()) {
+            PaintPath move = availableUndoMoves.remove(availableUndoMoves.size() - 1);
+            availableRedoMoves.add(move);
+            invalidate();
+        }
     }
 }
